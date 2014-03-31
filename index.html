@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!-- Abandon all hope ye who enter here. (I recycle my code a lot. Be prepared for random variables, etc.) -->
+<html lang="en">
+	<head>
+		<title>Let it Snow</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			@import url(http://fonts.googleapis.com/css?family=Lato);
+
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+				color:white;
+				font-family: 'Lato', sans-serif;
+				font-size:0.8em;
+				line-height:0.25em;
+
+			}
+
+			a {
+				color:#F0F0F0;
+			}
+		</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>		
+	</head>
+	<body>
+	<div style="position:absolute;margin-left:25px;" id="h">
+	<p>Made with ThreeJS</p>
+	<p>Matthew Kaufer</p>
+	<p>Move the mouse around to change the view!</p>
+	<a href="../space">A quick editing of the code makes this.</a>
+
+
+	</div>
+		<script src="build/three.min.js"></script>
+
+<!-- 
+		<script src="js/controls/TrackballControls.js"></script>
+ -->
+
+		<script>
+
+			var SEPARATION = 100, AMOUNTX = 50, AMOUNTY = 50;
+			var timeFrom = 0;
+			var container, stats;
+			var camera, scene, renderer, group, group2, rx, ry, rz, rs, rx2, ry2, rz2, rs2, centerp, geometry, line;
+
+			var particles, particles2, particle, count;
+			var dotArray, spiral, density, nums, speed, plane, material3;
+			var materialtest;
+			count = 0;
+
+			var mouseX = -1, mouseY = -1;
+				var s = 20;
+				var w = -10;
+				var crit = 8; //bigger = less
+				var s2 = 10;
+				var w2 = 7;
+				var crit2 = 9;				
+
+
+			var start = Date.now();		
+
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+
+
+
+			init();
+			animate();
+
+
+
+
+			function init() {
+
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
+				camera.position.z = 200;
+
+
+				scene = new THREE.Scene();
+
+
+				var PI2 = Math.PI * 2;
+
+
+				var i = 0;
+				var i2 = 0;
+
+
+
+
+
+				  group = new THREE.Object3D();
+				  scene.add( group );
+
+
+
+				material3 = new THREE.ParticleCanvasMaterial( {
+
+					color: 0xffffff,
+					program: function ( context ) {
+
+						context.beginPath();
+						context.arc( 0, 0, 1, 0, PI2, true );
+						context.fill();
+
+						}
+
+					} );
+
+				materialtest = new THREE.ParticleCanvasMaterial( {
+
+					color: 0xff0000,
+					program: function ( context ) {
+
+						context.beginPath();
+						context.arc( 0, 0, 1, 0, PI2, true );
+						context.fill();
+
+						}
+
+					} );				
+
+
+					density = 2000;
+					nums = 2000;
+					spiral = new Array(nums);
+					dotArray = new Array(nums);
+
+
+
+					for(var x = 0; x < nums; x++)
+					{
+
+					c = new THREE.Particle( material3 );
+					c.position.x = Math.random() * density - density/2.0;
+					c.position.y = Math.random() * density - density/2.0;
+					c.position.z = Math.random() * density - density/2.0;
+					c.scale.x = c.scale.y = Math.random() * 2 + 1;
+					// scene.add(c);
+					spiral[x] = Math.random() * 3;
+					dotArray[x] = c;
+					group.add(c);
+
+					}
+
+					
+					speed = 0;
+					
+
+				renderer = new THREE.CanvasRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+
+
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+
+
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+
+				
+
+			}
+
+
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function onDocumentMouseMove( event ) {
+				var omx = mouseX;
+				var omy = mouseY;
+				timeFrom = 0;
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+				if(omx == -1)
+					return;
+				group.rotation.y += (omx - mouseX) * 0.005;
+				group.rotation.z += (omy - mouseY) * 0.001;
+
+			}
+
+
+
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+
+			}
+
+
+
+			function render() {
+				camera.lookAt( scene.position );
+				var time = (Date.now() - start) / 5000;
+				count += 0.01;
+
+				var i = 0;
+				var i2 = 0;
+
+				if(timeFrom >= 0 && timeFrom <= 100)
+				{
+					// $('body').css('cursor', 'default');
+					$('#h').fadeIn(250);
+
+				}
+				else
+				{
+					// $('body').css('cursor', 'none');					
+					$('#h').fadeOut(250);
+
+				}
+				timeFrom++;				
+						
+
+				for(var x = 0; x < dotArray.length; x++)
+				{
+					var p = dotArray[x];
+					p.position.y -= p.scale.x / 3.0;
+					p.position.z += Math.sin(count * 2 + spiral[x]) / 2.0;
+					p.position.x += Math.cos(count * 2 + spiral[x]) / 2.0;
+
+
+					if(p.position.y < -1 * density / 2.0)
+						p.position.y = density / 2.0;
+
+
+				}
+
+				group.rotation.y += speed;
+				
+
+
+				renderer.render( scene, camera );
+				
+
+			}
+
+		</script>
+	</body>
+</html>
